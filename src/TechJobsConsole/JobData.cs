@@ -10,10 +10,11 @@ namespace TechJobsConsole
         static List<Dictionary<string, string>> AllJobs = new List<Dictionary<string, string>>();
         static bool IsDataLoaded = false;
 
-        public static List<Dictionary<string, string>> FindAll()
+        public static IList<Dictionary<string, string>> FindAll()
         {
             LoadData();
-            return AllJobs;
+            IList<Dictionary<string, string>> AllJobsCopy = AllJobs.AsReadOnly();
+            return AllJobsCopy;
         }
 
         /*
@@ -49,13 +50,37 @@ namespace TechJobsConsole
             {
                 string aValue = row[column];
 
-                if (aValue.Contains(value))
+                if (aValue.ToLower().Contains(value.ToLower())) 
                 {
                     jobs.Add(row);
                 }
             }
 
             return jobs;
+        }
+
+        /*
+         * Returns a list of all jobs matching a search criteria
+         */
+         public static List<Dictionary<string,string>> FindByValue(string value)
+        {
+            LoadData();
+            List<Dictionary<string, string>> matchingJobs = new List<Dictionary<string, string>>();
+            List<string> keysList = new List<string>(AllJobs[0].Keys); //keys are the columns 
+
+            foreach (string key in keysList){
+                List<Dictionary<string, string>> searchResults = FindByColumnAndValue(key, value);
+
+                foreach (Dictionary<string, string> job in searchResults)
+                {
+                    if (!matchingJobs.Contains(job))
+                    {
+                        matchingJobs.Add(job);
+                    }
+                }
+            }
+    
+            return matchingJobs;
         }
 
         /*
